@@ -12,7 +12,7 @@ public class InventoryManager : MonoBehaviour, GrabableItem
 
 
     //tambahan panel
-    [SerializeField] private ItemDetailsPanel detailsPanel;
+    //[SerializeField] private ItemDetailsPanel detailsPanel;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
