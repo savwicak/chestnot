@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12367afe846f1624a99b8c3306ce4a00, type: 3}
-  m_Name: chooped_tree
+  m_Name: Log
   m_EditorClassIdentifier: 
-  itemName: Chopped Tree
+  itemName: Log
   quantity: 1
   itemIcon: {fileID: 8538227208074699951, guid: de617bf3190c8274d930855586711af1, type: 3}
