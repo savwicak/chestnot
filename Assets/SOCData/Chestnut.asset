@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Chestnut
   m_EditorClassIdentifier: 
   itemName: Chestnut
+  description: Really delicious nuts. for buying puposes
   quantity: 1
   itemIcon: {fileID: -6183665857968644995, guid: 1468140bdf3a0374fa191165d0da062d, type: 3}

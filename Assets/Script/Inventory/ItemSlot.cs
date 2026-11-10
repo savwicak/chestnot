@@ -4,29 +4,46 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class ItemSlot : MonoBehaviour, IPointerClickHandler
+public class ItemSlot : MonoBehaviour,
+    IPointerClickHandler,
+    IPointerEnterHandler,
+    IPointerExitHandler
 {
     public string itemName;
     public int itemQuantity;
     public Sprite itemIcon;
     public bool isFull;
 
+    [Header("UI")]
     [SerializeField] private TMP_Text quantityText;
     [SerializeField] private Image itemImage;
     [SerializeField] private int maxStackSize = 99;
     [SerializeField] public GameObject SelectedPanel;
+    [SerializeField] private GameObject EquippedIndicator;
 
     public bool isItemSelected;
+    public bool isEquipped;
+
     private InventoryManager inventoryManager;
+    private ItemDetails itemDetails;
 
     public ItemDetails ItemDetails => itemDetails;
-    private ItemDetails itemDetails;
+
+    private ItemDetailsPanel hoverDetailsPanel;
+    private SelectedItemPanel selectedItemPanel;
 
     public void Start()
     {
         inventoryManager = FindAnyObjectByType<InventoryManager>();
-
         UpdateUI();
+    }
+
+    public void SetupPanels(
+        ItemDetailsPanel hoverPanel,
+        SelectedItemPanel selectedPanel)
+    {
+        hoverDetailsPanel = hoverPanel;
+        selectedItemPanel = selectedPanel;
     }
 
     public void AddItem(ItemDetails item)
@@ -40,8 +57,9 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public bool CanStackWith(string otherItemName)
     {
-        return isFull && itemName == otherItemName
-            && itemQuantity < maxStackSize;
+        return isFull &&
+               itemName == otherItemName &&
+               itemQuantity < maxStackSize;
     }
 
     public void AddQuantity(int amount)
@@ -73,6 +91,29 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             quantityText.text = hasItem ? itemQuantity.ToString() : "";
             quantityText.enabled = hasItem;
         }
+
+        if (EquippedIndicator != null)
+        {
+            EquippedIndicator.SetActive(isEquipped);
+        }
+    }
+
+    public void SetEquipped(bool equipped)
+    {
+        isEquipped = equipped;
+        UpdateUI();
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!isFull) return;
+
+        hoverDetailsPanel?.ShowDetails(this);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        hoverDetailsPanel?.HideDetails();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -97,11 +138,17 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
     {
         if (!isFull) return;
 
-        inventoryManager.DeselectAllSlot();
+        inventoryManager?.DeselectAllSlot();
 
-        SelectedPanel.SetActive(true);
+        if (SelectedPanel != null)
+        {
+            SelectedPanel.SetActive(true);
+        }
+
         isItemSelected = true;
 
-        Debug.Log("Left Click!");
+        selectedItemPanel?.ShowSelectedItem(this);
+
+        Debug.Log("Selected: " + itemName);
     }
 }

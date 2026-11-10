@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Log
   m_EditorClassIdentifier: 
   itemName: Log
+  description: great for building house, but we sell it anyway
   quantity: 1
   itemIcon: {fileID: 8538227208074699951, guid: de617bf3190c8274d930855586711af1, type: 3}

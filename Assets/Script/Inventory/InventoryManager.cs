@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -5,49 +6,65 @@ using UnityEngine.UI;
 public class InventoryManager : MonoBehaviour, GrabableItem
 {
     InputAction inventoryAction;
+
+    [Header("Inventory Settings")]
     [SerializeField] private GameObject InventoryCanvas;
     [SerializeField] private int slotCount = 16;
+
     private bool InventoryActive;
+
     public ItemSlot[] itemSlot;
 
+    [Header("Item Detail Panels")]
+    [SerializeField] private ItemDetailsPanel hoverDetailsPanel;
+    [SerializeField] private SelectedItemPanel selectedItemPanel;
 
-    //tambahan panel
-    //[SerializeField] private ItemDetailsPanel detailsPanel;
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         CreateSlots();
+
         InventoryCanvas.SetActive(false);
+
         inventoryAction = InputSystem.actions.FindAction("Inventory");
+
         InventoryActive = false;
 
+        // Hide detail panels initially
+        if (hoverDetailsPanel != null)
+        {
+            hoverDetailsPanel.gameObject.SetActive(false);
+        }
+
+        if (selectedItemPanel != null)
+        {
+            selectedItemPanel.gameObject.SetActive(false);
+        }
     }
 
-    // Update is called once per frame
+
     void Update()
     {
-        if (inventoryAction.triggered && InventoryCanvas != null && InventoryActive == false)
+        if (inventoryAction.triggered && InventoryCanvas != null)
         {
-            InventoryActive = true;
-            Time.timeScale = 0f;
-            Debug.Log("Inventory is active");
-            InventoryCanvas.SetActive(true);
-        }
-        else if (inventoryAction.triggered && InventoryCanvas != null && InventoryActive == true)
-        {
-            InventoryActive = false;
-            Time.timeScale = 1f;
-            Debug.Log("Inventory is deactivated");
-            InventoryCanvas.SetActive(false);
+            InventoryActive = !InventoryActive;
+
+            InventoryCanvas.SetActive(InventoryActive);
+
+            Time.timeScale = InventoryActive ? 0f : 1f;
+
+            Debug.Log(InventoryActive
+                ? "Inventory is active"
+                : "Inventory is deactivated");
         }
     }
 
-    // Build the slot objects at runtime so no manual wiring is needed in the scene
+
+    // CREATE INVENTORY SLOTS
     private void CreateSlots()
     {
         ItemSlot slotPrefab = Resources.Load<ItemSlot>("ItemSlot");
+
         if (slotPrefab == null)
         {
             Debug.LogError("ItemSlot prefab was not found in a Resources folder.", this);
@@ -55,24 +72,35 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             return;
         }
 
-        // Put the slots inside the GridLayoutGroup container (InventorySlots), if there is one
         Transform parent = InventoryCanvas.transform;
+
         GridLayoutGroup grid = InventoryCanvas.GetComponentInChildren<GridLayoutGroup>(true);
+
         if (grid != null)
         {
             parent = grid.transform;
         }
 
         itemSlot = new ItemSlot[slotCount];
+
         for (int i = 0; i < itemSlot.Length; i++)
         {
+            // Create slot
             itemSlot[i] = Instantiate(slotPrefab, parent);
+
+            // Connect hover and selected panels
+            itemSlot[i].SetupPanels(
+                hoverDetailsPanel,
+                selectedItemPanel
+            );
         }
     }
 
+
     public void AddItem(ItemDetails item)
     {
-        Debug.Log("Item added to inventory: " + item.ItemName + " Quantity: " + item.Quantity);
+        Debug.Log("Item added to inventory: " + item.ItemName +
+                  " Quantity: " + item.Quantity);
 
         if (itemSlot == null || itemSlot.Length == 0)
         {
@@ -90,7 +118,6 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             }
         }
 
-        // Find empty slot
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if (!itemSlot[i].isFull)
@@ -103,13 +130,19 @@ public class InventoryManager : MonoBehaviour, GrabableItem
         Debug.LogWarning("Inventory is full, '" + item.ItemName + "' was lost.");
     }
 
+
     public void DeselectAllSlot()
     {
         foreach (ItemSlot slot in itemSlot)
         {
+            if (slot == null) continue;
+
             slot.isItemSelected = false;
-            slot.SelectedPanel.SetActive(false);
+
+            if (slot.SelectedPanel != null)
+            {
+                slot.SelectedPanel.SetActive(false);
+            }
         }
     }
-
 }
