@@ -122,6 +122,7 @@ public class PlayerMovement : MonoBehaviour
                 ((Vector2)transform.position -
                 (Vector2)other.transform.position).normalized;
 
+            FindFirstObjectByType<CameraEffects>().HitEffect();
             StartCoroutine(Hit(direction));
         }
     }
@@ -131,7 +132,7 @@ public class PlayerMovement : MonoBehaviour
         isStunned = true;
         canAttack = false;
 
-        PlayAnimation("Shock");
+        PlayAnimation("play_Shock");
 
         float timer = 0;
 
@@ -144,8 +145,9 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        isStunned = false;
+        yield return new WaitForSeconds(0.5f);
 
+        isStunned = false;
         canAttack = true;
         animasiSekarang = "";
 
