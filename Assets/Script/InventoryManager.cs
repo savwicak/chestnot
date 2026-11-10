@@ -76,19 +76,11 @@ public class InventoryManager : MonoBehaviour, GrabableItem
 
         if (itemSlot == null || itemSlot.Length == 0)
         {
-            Debug.LogWarning("Inventory has no slots, '" + item.ItemName + "' was lost.");
+            Debug.LogWarning("Inventory has no slots!");
             return;
         }
 
-        // for (int i = 0; i < itemSlot.Length; i++)
-        // {
-        //     if (!itemSlot[i].isFull)
-        //     {
-        //         itemSlot[i].AddItem(item);
-        //         return;
-        //     }
-        // }
-
+        // Stack same items
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if (itemSlot[i].CanStackWith(item.ItemName))
@@ -96,9 +88,9 @@ public class InventoryManager : MonoBehaviour, GrabableItem
                 itemSlot[i].AddQuantity(item.Quantity);
                 return;
             }
-
         }
 
+        // Find empty slot
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if (!itemSlot[i].isFull)
@@ -106,7 +98,6 @@ public class InventoryManager : MonoBehaviour, GrabableItem
                 itemSlot[i].AddItem(item);
                 return;
             }
-
         }
 
         Debug.LogWarning("Inventory is full, '" + item.ItemName + "' was lost.");
@@ -120,4 +111,5 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             slot.SelectedPanel.SetActive(false);
         }
     }
+
 }

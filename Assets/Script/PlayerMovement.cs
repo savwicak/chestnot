@@ -122,8 +122,10 @@ public class PlayerMovement : MonoBehaviour
                 ((Vector2)transform.position -
                 (Vector2)other.transform.position).normalized;
 
-            FindFirstObjectByType<CameraEffects>().HitEffect();
+            Camera.main.GetComponent<CameraFollow>().HitEffect();
+
             StartCoroutine(Hit(direction));
+
         }
     }
 

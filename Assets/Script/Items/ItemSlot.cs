@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -14,15 +15,18 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image itemImage;
     [SerializeField] private int maxStackSize = 99;
     [SerializeField] public GameObject SelectedPanel;
+
     public bool isItemSelected;
     private InventoryManager inventoryManager;
 
-    public ItemDetails ItemDetails => ItemDetails;
+    public ItemDetails ItemDetails => itemDetails;
     private ItemDetails itemDetails;
 
     public void Start()
     {
         inventoryManager = FindAnyObjectByType<InventoryManager>();
+
+        UpdateUI();
     }
 
     public void AddItem(ItemDetails item)
@@ -30,12 +34,14 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
         itemDetails = item;
         itemName = item.ItemName;
         itemIcon = item.ItemIcon;
+
         AddQuantity(item.Quantity);
     }
 
     public bool CanStackWith(string otherItemName)
     {
-        return !isFull && itemName == otherItemName;
+        return isFull && itemName == otherItemName
+            && itemQuantity < maxStackSize;
     }
 
     public void AddQuantity(int amount)
@@ -47,11 +53,26 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             itemQuantity = maxStackSize;
         }
 
-        isFull = itemQuantity >= maxStackSize;
+        isFull = itemQuantity > 0;
 
-        quantityText.text = itemQuantity.ToString();
-        quantityText.enabled = true;
-        itemImage.sprite = itemIcon;
+        UpdateUI();
+    }
+
+    private void UpdateUI()
+    {
+        bool hasItem = itemQuantity > 0;
+
+        if (itemImage != null)
+        {
+            itemImage.sprite = itemIcon;
+            itemImage.enabled = hasItem && itemIcon != null;
+        }
+
+        if (quantityText != null)
+        {
+            quantityText.text = hasItem ? itemQuantity.ToString() : "";
+            quantityText.enabled = hasItem;
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -60,6 +81,7 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
         {
             RightClick();
         }
+
         if (eventData.button == PointerEventData.InputButton.Left)
         {
             LeftClick();
@@ -68,14 +90,18 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public void RightClick()
     {
-        UnityEngine.Debug.Log("Right Click!");
+        Debug.Log("Right Click!");
     }
 
     public void LeftClick()
     {
+        if (!isFull) return;
+
         inventoryManager.DeselectAllSlot();
+
         SelectedPanel.SetActive(true);
         isItemSelected = true;
-        UnityEngine.Debug.Log("Left Click!");
+
+        Debug.Log("Left Click!");
     }
 }
